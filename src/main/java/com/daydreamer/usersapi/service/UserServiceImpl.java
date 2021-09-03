@@ -30,16 +30,25 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User saveUser(User user) {
-        log.info("Saving new user: {} to the database",user.getName());
+        log.info("Saving new user: {} to the database",user.getUsername());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepo.save(user);
     }
 
-//    @Override
-//    public User signUpUser(User user) {
-//
-//        return null;
-//    }
+    @Override
+    public User signUpUser(User user) {
+        boolean userExists = userRepo.findByUsername(user.getUsername()).isPresent();
+        if(userExists){
+            throw new IllegalStateException("User already exists");
+        }
+
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+
+        user.setPassword(encodedPassword);
+
+        userRepo.save(user);
+
+    }
 
     @Override
     public Role saveRole(Role role) {
